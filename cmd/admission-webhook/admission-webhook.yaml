@@ -1,0 +1,51 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kh-mutating-webhook.comcast.github.io
+webhooks:
+  - name: kh-mutating-webhook.comcast.github.io
+    clientConfig:
+      service:
+        name: kh-mutating-webhook
+        namespace: kuberhealthy
+        path: "/mutate"
+        port: 80
+      caBundle: TODO # TODO
+      # caBundle: ${CA_PEM_B64}
+    failurePolicy: Ignore
+    # failurePolicy: Fail
+    sideEffects: None
+    timeoutSeconds: 3
+    reinvocationPolicy: IfNeeded
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["comcast.github.io"]
+        apiVersions: ["v1"]
+        resources: ["khchecks"]
+        scope: "Namespaced"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: kh-validating-webhook.comcast.github.io
+webhooks:
+  - name: kh-validating-webhook.comcast.github.io
+    clientConfig:
+      service:
+        name: kh-khcheck-validating-webhook
+        namespace: kuberhealthy
+        path: "/validate"
+        port: 80
+      caBundle: TODO # TODO
+      # caBundle: ${CA_PEM_B64}
+    failurePolicy: Ignore
+    # failurePolicy: Fail
+    sideEffects: None
+    timeoutSeconds: 3
+    reinvocationPolicy: IfNeeded
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: ["comcast.github.io"]
+        apiVersions: ["v1"]
+        resources: ["khchecks"]
+        scope: "Namespaced"
