@@ -121,7 +121,8 @@ func performMutation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 		return nil, fmt.Errorf("could not validate khcheck: %w", err)
 	}
 
-	// Admit the review if there was no error
+	// Admit the review if there was no error.
+	// Also admit the patch for the KHCheckCRD.
 	admissionReviewResponse.Response.Allowed = true
 	jsonPatchType := v1.PatchTypeJSONPatch
 	admissionReviewResponse.Response.PatchType = &jsonPatchType
@@ -139,6 +140,23 @@ func performMutation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 
 // mutateKHCheck
 func mutateKHCheck(check *khcheck.KuberhealthyCheck) ([]byte, error) {
+
+	if check == nil {
+		return nil, fmt.Errorf("check given to mutate func is nil: %v", check)
+	}
+
+	// if check.Name == "" {
+	// 	log.Warnln("Check name is empty.")
+	// }
+
+	// if check.Namespace == "" {
+	// 	log.Warnln("Check namespace is empty.")
+	// }
+
+	// for _, container := range check.Spec.PodSpec.Containers {
+	// 	if container.
+	// }
+
 	return nil, nil
 }
 
@@ -249,5 +267,8 @@ func performValidation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 
 // validateKHCheck
 func validateKHCheck(check *khcheck.KuberhealthyCheck) error {
+	if check == nil {
+		return fmt.Errorf("check given to validate func is nil: %v", check)
+	}
 	return nil
 }

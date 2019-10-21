@@ -9,4 +9,5 @@ RUN mv app /app/app
 
 FROM golang:1.13
 COPY --from=builder /app/app /app/app
+EXPOSE 80 443
 ENTRYPOINT /app/app

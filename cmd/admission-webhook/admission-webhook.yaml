@@ -1,7 +1,10 @@
+---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: kh-mutating-webhook.comcast.github.io
+  labels:
+    kh-webhook: kh-mutating-webhook
 webhooks:
   - name: kh-mutating-webhook.comcast.github.io
     clientConfig:
@@ -28,6 +31,8 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionWebhook
 metadata:
   name: kh-validating-webhook.comcast.github.io
+  labels:
+    kh-webhook: kh-validating-webhook
 webhooks:
   - name: kh-validating-webhook.comcast.github.io
     clientConfig:
@@ -49,3 +54,75 @@ webhooks:
         apiVersions: ["v1"]
         resources: ["khchecks"]
         scope: "Namespaced"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    kh-webhook: kh-webhook-service
+  name: kuberhealthy
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    name: http
+    targetPort: 80
+  - port: 443
+    name: https
+    targetPord: 443
+  selector:
+    kh-webhook: kh-validating-webhook
+    kh-webhook: kh-mutating-webhook
+    kh-webhook: kh-webhook-service
+  # matchLabels:
+  #   kh-webhook: kh-validating-webhook
+  #   kh-webhook: kh-mutating-webhook
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kh-webhook-server
+  labels:
+    kh-webhook: kh-webhook-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      kh-webhook: kh-webhook-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        kh-webhook: kh-webhook-service
+      namespace: kuberhealthy
+    spec:
+      containers:
+      - image: <image>
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 2
+          periodSeconds: 4
+          successThreshold: 1
+          tcpSocket:
+            port: 80
+          timeoutSeconds: 1
+        name:  kh-webhook
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 2
+          periodSeconds: 4
+          successThreshold: 1
+          tcpSocket:
+            port: 80
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 20m
+            memory: 30Mi
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 180

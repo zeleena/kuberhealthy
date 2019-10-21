@@ -15,7 +15,9 @@ import (
 	"crypto/tls"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"time"
 
 	khcheckcrd "github.com/Comcast/kuberhealthy/pkg/khcheckcrd"
 	log "github.com/sirupsen/logrus"
@@ -47,6 +49,9 @@ var (
 
 	// KHCheckCRD resource.
 	khcheckCRDResource metav1.GroupVersionResource
+
+	// Signal channel for interrupts.
+	signalChan chan os.Signal
 
 	debugEnv = os.Getenv("DEBUG")
 	debug    bool
@@ -110,12 +115,15 @@ func init() {
 	// Set up a runtime decoder.
 	deserializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}.UniversalDeserializer()
 
-	// Set up a KHCheckCRD
+	// Set up a KHCheckCRD.
 	khcheckCRDResource = metav1.GroupVersionResource{
 		Group:    group,
 		Version:  version,
 		Resource: resource,
 	}
+
+	// Make the signal channel.
+	signalChan = make(chan os.Signal, 2)
 
 	// Enable debug logging if requested.
 	if len(debugEnv) != 0 {
@@ -156,9 +164,32 @@ func main() {
 		},
 	}
 
+	go listenForInterrupts()
+
 	// Start the server.
 	err = server.ListenAndServeTLS(tlsCert, tlsKey)
 	if err != nil {
 		log.Fatalln("Failed to start server:", err)
 	}
+}
+
+// listenForInterrupts watches the signal and done channels for termination.
+func listenForInterrupts() {
+
+	// Relay incoming OS interrupt signals to the signalChan.
+	signal.Notify(signalChan, os.Interrupt, os.Kill)
+	<-signalChan // This is a blocking operation -- the routine will stop here until there is something sent down the channel.
+	log.Infoln("Received an interrupt signal from the signal channel.")
+
+	log.Infoln("Shutting down.")
+
+	select {
+	case <-signalChan:
+		// If there is an interrupt signal, interrupt the run.
+		log.Warnln("Received a secsond interrupt signal from the signal channel.")
+	case <-time.After(time.Duration(2 * time.Second)):
+		log.Infoln("Clean up took too long to complete and timed out.")
+	}
+
+	os.Exit(0)
 }
