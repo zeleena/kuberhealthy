@@ -1,33 +1,5 @@
 ---
 apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
-metadata:
-  name: kh-mutating-webhook.comcast.github.io
-  labels:
-    kh-webhook: kh-mutating-webhook
-webhooks:
-  - name: kh-mutating-webhook.comcast.github.io
-    clientConfig:
-      service:
-        name: kh-mutating-webhook
-        namespace: kuberhealthy
-        path: "/mutate"
-        port: 80
-      caBundle: TODO # TODO
-      # caBundle: ${CA_PEM_B64}
-    failurePolicy: Ignore
-    # failurePolicy: Fail
-    sideEffects: None
-    timeoutSeconds: 3
-    reinvocationPolicy: IfNeeded
-    rules:
-      - operations: ["CREATE", "UPDATE"]
-        apiGroups: ["comcast.github.io"]
-        apiVersions: ["v1"]
-        resources: ["khchecks"]
-        scope: "Namespaced"
----
-apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionWebhook
 metadata:
   name: kh-validating-webhook.comcast.github.io
@@ -43,13 +15,12 @@ webhooks:
         port: 80
       caBundle: TODO # TODO
       # caBundle: ${CA_PEM_B64}
-    failurePolicy: Ignore
-    # failurePolicy: Fail
+    failurePolicy: Fail
     sideEffects: None
     timeoutSeconds: 3
     reinvocationPolicy: IfNeeded
     rules:
-      - operations: ["CREATE"]
+      - operations: ["CREATE", "UPDATE"]
         apiGroups: ["comcast.github.io"]
         apiVersions: ["v1"]
         resources: ["khchecks"]
@@ -69,14 +40,9 @@ spec:
     targetPort: 80
   - port: 443
     name: https
-    targetPord: 443
+    targetPort: 443
   selector:
-    kh-webhook: kh-validating-webhook
-    kh-webhook: kh-mutating-webhook
     kh-webhook: kh-webhook-service
-  # matchLabels:
-  #   kh-webhook: kh-validating-webhook
-  #   kh-webhook: kh-mutating-webhook
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -91,7 +57,7 @@ spec:
       kh-webhook: kh-webhook-service
   strategy:
     rollingUpdate:
-      maxSurge: 0
+      maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
   template:

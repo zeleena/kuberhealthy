@@ -3,11 +3,10 @@ RUN apt-get upgrade -y && apt-get install git -y
 ADD . /go/src/app
 WORKDIR /go/src/app
 RUN go get -v
-RUN go build -o app
 RUN mkdir /app
-RUN mv app /app/app
+RUN go build -o /app/app
 
-FROM golang:1.13
-COPY --from=builder /app/app /app/app
+FROM golang:alpine
+COPY --from=builder go/src/app/app /app/app
 EXPOSE 80 443
 ENTRYPOINT /app/app

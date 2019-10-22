@@ -152,8 +152,7 @@ func main() {
 
 	// Configure the multiplexer.
 	mux := http.NewServeMux()
-	mux.Handle("/mutate", mutateHandlerWrapper())
-	// mux.Handle("/validate", validateHandlerWrapper())
+	mux.Handle("/validate", validateHandlerWrapper())
 
 	// Create server configurations and handlers.
 	server := &http.Server{
