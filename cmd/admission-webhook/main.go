@@ -17,9 +17,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
-	"time"
 
-	khcheckcrd "github.com/Comcast/kuberhealthy/pkg/khcheckcrd"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -95,22 +93,17 @@ func init() {
 		httpsEnabled = useHTTPS
 	}
 
+	// Parse TLS cert and key if HTTPS is enabled.
 	if httpsEnabled {
-
 		if len(tlsCert) == 0 {
 			log.Fatalln("HTTPS enabled, but no TLS certificate provided.")
 		}
-
 		if len(tlsKey) == 0 {
 			log.Fatalln("HTTPS enabled, but no TLS key provided.")
 		}
-
 	} else {
 		addr = ":80"
 	}
-
-	// Configure schema.
-	khcheckcrd.ConfigureScheme(group, version)
 
 	// Set up a runtime decoder.
 	deserializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}.UniversalDeserializer()
@@ -166,7 +159,11 @@ func main() {
 	go listenForInterrupts()
 
 	// Start the server.
-	err = server.ListenAndServeTLS(tlsCert, tlsKey)
+	if httpsEnabled {
+		err = server.ListenAndServeTLS(tlsCert, tlsKey)
+	} else {
+		err = server.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatalln("Failed to start server:", err)
 	}
@@ -179,16 +176,7 @@ func listenForInterrupts() {
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
 	<-signalChan // This is a blocking operation -- the routine will stop here until there is something sent down the channel.
 	log.Infoln("Received an interrupt signal from the signal channel.")
-
 	log.Infoln("Shutting down.")
-
-	select {
-	case <-signalChan:
-		// If there is an interrupt signal, interrupt the run.
-		log.Warnln("Received a secsond interrupt signal from the signal channel.")
-	case <-time.After(time.Duration(2 * time.Second)):
-		log.Infoln("Clean up took too long to complete and timed out.")
-	}
 
 	os.Exit(0)
 }

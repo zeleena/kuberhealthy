@@ -13,7 +13,7 @@ webhooks:
         namespace: kuberhealthy
         path: "/validate"
         port: 80
-      caBundle: TODO # TODO
+      caBundle: <TODO> 
       # caBundle: ${CA_PEM_B64}
     failurePolicy: Fail
     sideEffects: None

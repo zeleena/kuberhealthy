@@ -1,0 +1,25 @@
+apiVersion: comcast.github.io/v1
+kind: KuberhealthyCheck
+badField: just-for-good-measure
+metadata:
+  name: bad-khcheck
+  namespace: kuberhealthy
+  badField: just-for-good-measure.metadata
+spec:
+  runInterval: 100m
+  timeout: 100m
+  badField: just-for-good-measure.spec
+  podSpec:
+    containers:
+    - name: bad-khcheck
+      image: IMAGE-DOES-NOT-EXIST:BUT-WHO-CARES
+      imagePullPolicy: NOT-A-VALID-POLICY
+      resources:
+        requests:
+          cpu: 0xffffffm
+          memory: 0x0fffMi
+        limits:
+          cpu: 0x08ffffffm
+      restartPolicy: When-it-should
+    badField: just-for-good-measure.podSpec
+    

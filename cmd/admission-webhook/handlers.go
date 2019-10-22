@@ -19,10 +19,7 @@ import (
 
 	khcheck "github.com/Comcast/kuberhealthy/pkg/khcheckcrd"
 	log "github.com/sirupsen/logrus"
-
-	// khcheck "github.com/Comcast/kuberhealthy/pkg/khcheckcrd"
-
-	"k8s.io/api/admission/v1beta1"
+	v1 "k8s.io/api/admission/v1"
 )
 
 // validateHandlerWrapper
@@ -30,7 +27,7 @@ func validateHandlerWrapper() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := validate(w, r)
 		if err != nil {
-			log.Errorln("error occurred during validation:", err)
+			_ = fmt.Errorf("error occurred during validation: %w", err)
 		}
 	})
 }
@@ -49,7 +46,7 @@ func validate(w http.ResponseWriter, r *http.Request) error {
 	_, err = w.Write(b)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		err = fmt.Errorf("failed to write byte slice to response.: %w", err)
+		err = fmt.Errorf("failed to write byte slice to response: %w", err)
 		return err
 	}
 
@@ -80,7 +77,7 @@ func performValidation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	}
 
 	// Parse the admission review request.
-	var admissionReviewRequest v1beta1.AdmissionReview
+	var admissionReviewRequest v1.AdmissionReview
 	_, _, err = deserializer.Decode(body, nil, &admissionReviewRequest)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -92,8 +89,8 @@ func performValidation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	}
 
 	// Construct the admission review response.
-	admissionReviewResponse := v1beta1.AdmissionReview{
-		Response: &v1beta1.AdmissionResponse{
+	admissionReviewResponse := v1.AdmissionReview{
+		Response: &v1.AdmissionResponse{
 			UID: admissionReviewRequest.Request.UID,
 		},
 	}
@@ -107,21 +104,21 @@ func performValidation(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	// Parse the KHCheck object.
 	rawKHCheck := admissionReviewRequest.Request.Object.Raw
 	khCheck := &khcheck.KuberhealthyCheck{}
-	_, _, err = deserializer.Decode(rawKHCheck, nil, khCheck)
+	err = json.Unmarshal(rawKHCheck, &khCheck)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return nil, fmt.Errorf("could not decode khcheck: %w", err)
 	}
 
-	// Admit the check.
+	// Admit the check if unmarshalling is ok.
 	admissionReviewResponse.Response.Allowed = true
 
 	// Return the admission review with a response as JSON.
-	// admissionReviewRequest.Request.Object = &khCheck
 	bytes, err := json.Marshal(&admissionReviewResponse)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling response: %v", err)
 	}
 	log.Infoln("Completed validation.")
+
 	return bytes, nil
 }
