@@ -26,18 +26,18 @@ pushExternalChecker:
 deploymentCheck: buildDeploymentCheck pushDeploymentCheck
 
 buildDeploymentCheck:
-	docker build -t quay.io/comcast/deployment-check:1.0.2 -f cmd/deployment-check/Dockerfile .
+	docker build -t quay.io/comcast/deployment-check:1.0.3 -f cmd/deployment-check/Dockerfile .
 
 pushDeploymentCheck:
-	docker push quay.io/comcast/deployment-check:1.0.2
+	docker push quay.io/comcast/deployment-check:1.0.3
 
 daemonset: buildDaemonsetCheck pushDaemonsetCheck
 
 buildDaemonsetCheck:
-	docker build -t quay.io/comcast/kh-daemonset-check:1.0.0 -f cmd/daemonSetCheck/Dockerfile .
+	docker build -t quay.io/comcast/kh-daemonset-check:2.0.0 -f cmd/daemonSetCheck/Dockerfile .
 
 pushDaemonsetCheck:
-	docker push quay.io/comcast/kh-daemonset-check:1.0.0
+	docker push quay.io/comcast/kh-daemonset-check:2.0.0
 
 kiamCheck: buildKIAMCheck pushKIAMCheck
 
@@ -50,10 +50,10 @@ pushKIAMCheck:
 podRestarts: buildPodRestartsCheck pushPodRestartsCheck
 
 buildPodRestartsCheck:
-	docker build -t quay.io/comcast/pod-restarts-check:1.0.1 -f cmd/podRestartsCheck/Dockerfile .
+	docker build -t quay.io/comcast/pod-restarts-check:2.0.0 -f cmd/podRestartsCheck/Dockerfile .
 
 pushPodRestartsCheck:
-	docker push quay.io/comcast/pod-restarts-check:1.0.1
+	docker push quay.io/comcast/pod-restarts-check:2.0.0
 
 dnsStatus: buildDNSStatusCheck pushDNSStatusCheck
 
