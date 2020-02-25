@@ -4,6 +4,9 @@ apiVersion: comcast.github.io/v1
 kind: KuberhealthyCheck
 metadata:
   name: pod-status
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   runInterval: 5m
   timeout: 15m
@@ -23,4 +26,8 @@ spec:
           requests:
             cpu: 10m
             memory: 50Mi
+    {{- if .Values.check.podStatus.nodeSelector }}
+    nodeSelector:
+{{- toYaml .Values.check.podStatus.nodeSelector | trim | nindent 6 }}
+    {{- end }}
 {{- end }}

@@ -4,6 +4,9 @@ kind: PodDisruptionBudget
 metadata:
   name:  {{ template "kuberhealthy.name" . }}-pdb
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   minAvailable: 1
   selector:

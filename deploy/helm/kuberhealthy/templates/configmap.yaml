@@ -5,6 +5,8 @@ kind: ConfigMap
 metadata:
   labels:
     app: "prometheus"
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
     prometheus: {{ .Values.prometheus.name }}
     role: alert-rules
   name: {{ template "kuberhealthy.name" . }}

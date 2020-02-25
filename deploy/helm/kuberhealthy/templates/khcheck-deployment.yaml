@@ -5,6 +5,9 @@ kind: KuberhealthyCheck
 metadata:
   name: deployment
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   runInterval: 10m
   timeout: 15m
@@ -15,9 +18,17 @@ spec:
       imagePullPolicy: IfNotPresent
       env:
         - name: CHECK_DEPLOYMENT_REPLICAS
-          value: "4"
+          value: "1"
         - name: CHECK_DEPLOYMENT_ROLLING_UPDATE
           value: "true"
+        {{- if .Values.check.deployment.env.CHECK_IMAGE }}
+        - name: CHECK_IMAGE
+          value: {{ .Values.check.deployment.env.CHECK_IMAGE }}
+        {{- end }}
+        {{- if .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
+        - name: CHECK_IMAGE_ROLL_TO
+          value: {{ .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
+        {{- end }}
       resources:
         requests:
           cpu: 25m
@@ -25,6 +36,10 @@ spec:
         limits:
           cpu: 40m
       restartPolicy: Always
+    {{- if .Values.check.deployment.nodeSelector }}
+    nodeSelector:
+{{- toYaml .Values.check.deployment.nodeSelector | trim | nindent 6 }}
+    {{- end }}
     serviceAccountName: deployment-sa
     terminationGracePeriodSeconds: 60
 ---

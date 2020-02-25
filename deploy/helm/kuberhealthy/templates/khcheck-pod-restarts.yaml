@@ -4,6 +4,9 @@ apiVersion: comcast.github.io/v1
 kind: KuberhealthyCheck
 metadata:
   name: pod-restarts
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   runInterval: 5m
   timeout: 10m
@@ -25,5 +28,9 @@ spec:
           requests:
             cpu: 10m
             memory: 50Mi
+    {{- if .Values.check.podRestarts.nodeSelector }}
+    nodeSelector:
+{{- toYaml .Values.check.podRestarts.nodeSelector | trim | nindent 6 }}
+    {{- end }}
     restartPolicy: Never
 {{- end }}

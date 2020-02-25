@@ -3,6 +3,9 @@ apiVersion: {{ template "rbac.apiVersion" . }}
 kind: ClusterRoleBinding
 metadata:
   name: {{ template "kuberhealthy.name" . }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

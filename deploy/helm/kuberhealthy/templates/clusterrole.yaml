@@ -3,6 +3,9 @@ apiVersion: {{ template "rbac.apiVersion" . }}
 kind: ClusterRole
 metadata:
   name: {{ template "kuberhealthy.name" . }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 rules:
   - apiGroups:
     - apps

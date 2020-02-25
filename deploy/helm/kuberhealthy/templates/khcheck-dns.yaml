@@ -5,6 +5,9 @@ kind: KuberhealthyCheck
 metadata:
   name: dns-status-internal
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   runInterval: 2m
   timeout: 15m
@@ -22,4 +25,8 @@ spec:
           requests:
             cpu: 10m
             memory: 50Mi
+    {{- if .Values.check.dnsInternal.nodeSelector }}
+    nodeSelector:
+{{- toYaml .Values.check.dnsInternal.nodeSelector | trim | nindent 6 }}
+    {{- end }}
 {{- end }}

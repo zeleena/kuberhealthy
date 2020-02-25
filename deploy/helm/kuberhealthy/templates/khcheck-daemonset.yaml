@@ -5,6 +5,9 @@ kind: KuberhealthyCheck
 metadata:
   name: daemonset
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   runInterval: 15m
   timeout: 12m
@@ -17,6 +20,10 @@ spec:
                 fieldPath: metadata.namespace
           - name: CHECK_POD_TIMEOUT
             value: "10m"
+          {{- if .Values.check.daemonset.env.PAUSE_CONTAINER_IMAGE }}
+          - name: PAUSE_CONTAINER_IMAGE
+            value: {{ .Values.check.daemonset.env.PAUSE_CONTAINER_IMAGE }}
+          {{- end }}
         image: {{ .Values.check.daemonset.image.repository }}:{{ .Values.check.daemonset.image.tag }}
         imagePullPolicy: IfNotPresent
         name: main
@@ -24,6 +31,10 @@ spec:
           requests:
             cpu: 10m
             memory: 50Mi
+    {{- if .Values.check.daemonset.nodeSelector }}
+    nodeSelector:
+{{- toYaml .Values.check.daemonset.nodeSelector | trim | nindent 6 }}
+    {{- end }}
     serviceAccountName: daemonset-khcheck
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -48,7 +59,7 @@ rules:
   - apiGroups:
       - ""
       - extensions
-      - app
+      - apps
     resources:
       - daemonsets
       - pods
