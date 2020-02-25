@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+version: 2.1.2
+appVersion: 2.1.2
+name: "kuberhealthy"
+home: https://comcast.github.io/kuberhealthy/
+description: A Helm chart for Kuberhealthy, an operator for synthetic test and monitoring.
+type: application
+keywords:
+- kuberhealthy
+- kubernetes
+- operator
+- monitoring
+- synthetic
+- testing
+- comcast
+- health
+- prometheus
+sources:
+- https://github.com/Comcast/kuberhealthy
+- https://github.com/helm/charts/tree/master/stable/kuberhealthy
+icon: https://raw.githubusercontent.com/Comcast/kuberhealthy/master/images/logo-square.png
