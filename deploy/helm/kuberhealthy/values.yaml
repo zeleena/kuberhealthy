@@ -1,3 +1,4 @@
+---
 # Default values for kuberhealthy.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -8,7 +9,7 @@ prometheus:
   enabled: true
   name: "prometheus"
   enableScraping: true
-  serviceMonitor: true
+  serviceMonitor: false
   enableAlerting: false
 
 image:
@@ -33,7 +34,7 @@ deployment:
   maxUnavailable: 1
   imagePullPolicy: IfNotPresent
   nodeSelector:
-    kubernetes.io/os: linux
+    beta.kubernetes.io/os: linux
   podAnnotations: {}
   env:
     KH_EXTERNAL_REPORTING_URL: '"http://kuberhealthy.kuberhealthy.svc/externalCheckStatus"'
@@ -105,4 +106,4 @@ checkReaper:
     repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/check-reaper
     tag: 1.0.0
   nodeSelector:
-    kubernetes.io/os: linux
+    beta.kubernetes.io/os: linux

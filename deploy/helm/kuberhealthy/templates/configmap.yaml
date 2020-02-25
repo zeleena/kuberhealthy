@@ -1,5 +1,6 @@
 {{- if .Values.prometheus.enabled -}}
 {{- if .Values.prometheus.enableAlerting -}}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:

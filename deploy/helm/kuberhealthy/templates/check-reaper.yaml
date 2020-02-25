@@ -1,8 +1,12 @@
+---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: check-reaper
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 spec:
   schedule: "*/3 * * * *"
   jobTemplate:
@@ -10,9 +14,9 @@ spec:
       template:
         spec:
           containers:
-            - name: check-reaper
-              image: {{ .Values.checkReaper.image.repository }}:{{ .Values.checkReaper.image.tag }}
-              imagePullPolicy: IfNotPresent
+          - name: check-reaper
+            image: {{ .Values.checkReaper.image.repository }}:{{ .Values.checkReaper.image.tag }}
+            imagePullPolicy: IfNotPresent
           {{- if .Values.checkReaper.nodeSelector }}
           nodeSelector:
 {{- toYaml .Values.checkReaper.nodeSelector | trim | nindent 12 }}
@@ -26,17 +30,23 @@ kind: ClusterRoleBinding
 metadata:
   name: check-reaper
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: admin
 subjects:
-  - kind: ServiceAccount
-    name: check-reaper
-    namespace: {{ .Release.Namespace }}
+- kind: ServiceAccount
+  name: check-reaper
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: check-reaper
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam

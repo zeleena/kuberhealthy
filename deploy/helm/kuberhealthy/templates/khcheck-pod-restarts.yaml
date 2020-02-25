@@ -12,22 +12,22 @@ spec:
   timeout: 10m
   podSpec:
     containers:
-      - env:
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          - name: CHECK_POD_TIMEOUT
-            value: "10m"
-          - name: MAX_FAILURES_ALLOWED
-            value: "10"
-        image: {{ .Values.check.podRestarts.image.repository }}:{{ .Values.check.podRestarts.image.tag }}
-        imagePullPolicy: IfNotPresent
-        name: main
-        resources:
-          requests:
-            cpu: 10m
-            memory: 50Mi
+    - env:
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: CHECK_POD_TIMEOUT
+        value: "10m"
+      - name: MAX_FAILURES_ALLOWED
+        value: "10"
+      image: {{ .Values.check.podRestarts.image.repository }}:{{ .Values.check.podRestarts.image.tag }}
+      imagePullPolicy: IfNotPresent
+      name: main
+      resources:
+        requests:
+          cpu: 10m
+          memory: 50Mi
     {{- if .Values.check.podRestarts.nodeSelector }}
     nodeSelector:
 {{- toYaml .Values.check.podRestarts.nodeSelector | trim | nindent 6 }}

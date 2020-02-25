@@ -7,73 +7,76 @@ metadata:
     app.kubernetes.io/managed-by: helm
     app.kubernetes.io/owner: sditeam
 rules:
-  - apiGroups:
-    - apps
-    resources:
-    - daemonsets
-    verbs:
-    - create
-    - delete
-    - deletecollection
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - extensions
-    resources:
-    - daemonsets
-    verbs:
-    - create
-    - delete
-    - deletecollection
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - pods
-    verbs:
-    - create
-    - delete
-    - deletecollection
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - comcast.github.io
-    resources:
-    - khstates
-    - khchecks
-    verbs:
-    - "*"
-  - apiGroups:
-    - ""
-    resources:
-    - namespaces
-    - componentstatuses
-    - nodes
-    verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - pods/eviction
-    verbs:
-    - create
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - comcast.github.io
+  resources:
+  - khstates
+  - khchecks
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - componentstatuses
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/eviction
+  verbs:
+  - create
 ---
 apiVersion: {{ template "rbac.apiVersion" . }}
 kind: ClusterRole
 metadata:
   name: {{ template "kuberhealthy.name" . }}-daemonset-khcheck
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 rules:
 - apiGroups:
   - ""

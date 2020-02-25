@@ -12,4 +12,4 @@ spec:
     singular: khstate
     kind: KuberhealthyState
     shortNames:
-      - khs
+    - khs

@@ -17,18 +17,18 @@ spec:
       image: {{ .Values.check.deployment.image.repository }}:{{ .Values.check.deployment.image.tag }}
       imagePullPolicy: IfNotPresent
       env:
-        - name: CHECK_DEPLOYMENT_REPLICAS
-          value: "1"
-        - name: CHECK_DEPLOYMENT_ROLLING_UPDATE
-          value: "true"
-        {{- if .Values.check.deployment.env.CHECK_IMAGE }}
-        - name: CHECK_IMAGE
-          value: {{ .Values.check.deployment.env.CHECK_IMAGE }}
-        {{- end }}
-        {{- if .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
-        - name: CHECK_IMAGE_ROLL_TO
-          value: {{ .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
-        {{- end }}
+      - name: CHECK_DEPLOYMENT_REPLICAS
+        value: "1"
+      - name: CHECK_DEPLOYMENT_ROLLING_UPDATE
+        value: "true"
+      {{- if .Values.check.deployment.env.CHECK_IMAGE }}
+      - name: CHECK_IMAGE
+        value: {{ .Values.check.deployment.env.CHECK_IMAGE }}
+      {{- end }}
+      {{- if .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
+      - name: CHECK_IMAGE_ROLL_TO
+        value: {{ .Values.check.deployment.env.CHECK_IMAGE_ROLL_TO }}
+      {{- end }}
       resources:
         requests:
           cpu: 25m
@@ -48,57 +48,66 @@ kind: RoleBinding
 metadata:
   name: deployment-check-rb
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: deployment-service-role
 subjects:
-  - kind: ServiceAccount
-    name: deployment-sa
+- kind: ServiceAccount
+  name: deployment-sa
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: deployment-service-role
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 rules:
-  - apiGroups:
-      - "apps"
-    resources:
-      - deployments
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - get
-      - list
-      - watch
+- apiGroups:
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: deployment-sa
   namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/owner: sditeam
 {{- end }}
 
