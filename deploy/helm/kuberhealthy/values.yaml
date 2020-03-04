@@ -6,15 +6,16 @@
 nameOverride: kuberhealthy
 
 prometheus:
-  enabled: true
+  enabled: false
   name: "prometheus"
-  enableScraping: true
+  release: prometheus-operator
+  enableScraping: false
   serviceMonitor: false
   enableAlerting: false
 
 image:
-  repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kuberhealthy
-  tag: 2.1.2
+  repository: quay.io/comcast/kuberhealthy
+  tag: 2.1.0
 
 resources:
   requests:
@@ -33,14 +34,12 @@ deployment:
   maxSurge: 0
   maxUnavailable: 1
   imagePullPolicy: IfNotPresent
-  nodeSelector:
-    beta.kubernetes.io/os: linux
+  nodeSelector: {}
   podAnnotations: {}
-  env:
-    KH_EXTERNAL_REPORTING_URL: '"http://kuberhealthy.kuberhealthy.svc/externalCheckStatus"'
+  env: {}
   command:
   - /app/kuberhealthy
-  args: {}
+  # args:
 
 securityContext:
   runAsNonRoot: true
@@ -62,48 +61,40 @@ service:
 check:
   daemonset:
     enabled: true
-    env:
-      PAUSE_CONTAINER_IMAGE: artifact01do.uunet.arlington.predictivetechnologies.com/gcr.io/google-containers/pause:3.1
+    env: {}
     image:
-      repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kh-daemonset-check
+      repository: quay.io/comcast/kh-daemonset-check
       tag: 2.0.1
-    nodeSelector:
-      kubernetes.io/os: linux
+    nodeSelector: {}
   deployment:
     enabled: true
-    env:
-      CHECK_IMAGE: artifact01do.uunet.arlington.predictivetechnologies.com/registry-1.docker.io/nginx:1.17-perl
-      CHECK_IMAGE_ROLL_TO: artifact01do.uunet.arlington.predictivetechnologies.com/registry-1.docker.io/nginx:1.17.5-perl
+    env: {}
     image:
-      repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kh-deployment-check
-      tag: 1.1.0
+      repository: quay.io/comcast/deployment-check
+      tag: 1.1.1
     nodeSelector:
       kubernetes.io/os: linux
   dnsInternal:
     enabled: true
     image:
-      repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kh-dns-status-check
+      repository: quay.io/comcast/dns-status-check
       tag: 1.0.0
-    nodeSelector:
-      kubernetes.io/os: linux
+    nodeSelector: {}
   podRestarts:
-    enabled: true
+    enabled: false
     image:
-      repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kh-pod-restarts-check
+      repository: quay.io/comcast/pod-restarts-check
       tag: 2.0.0
-    nodeSelector:
-      kubernetes.io/os: linux
+    nodeSelector: {}
   podStatus:
     enabled: false
     image:
-      repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/kh-pod-status-check
-      tag: 1.1.0
-    nodeSelector:
-      kubernetes.io/os: linux
+      repository: quay.io/comcast/pod-status-check
+      tag: 1.0.1
+    nodeSelector: {}
 
 checkReaper:
   image:
-    repository: artifact01do.uunet.arlington.predictivetechnologies.com/internal-quay/comcast/check-reaper
+    repository: quay.io/comcast/check-reaper
     tag: 1.0.0
-  nodeSelector:
-    beta.kubernetes.io/os: linux
+  nodeSelector: {}
